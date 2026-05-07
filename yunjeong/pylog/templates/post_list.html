@@ -1,26 +1,39 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
+<head>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <h1>Post List</h1>
-    <!-- 글 목록을 ul 요소 내에 표시 -->
-    <ul>
-        <!-- for-in 태그로 순회하며 각각의 글은 li 요소로 표시 -->
-        {% for post in posts %}
-            <li>
-                <!-- 각각의 글의 제목과 내용을 나누어 표시 -->
-                <h2>{{ post.title }}</h2>
-                <p>{{ post.content }}</p>
-                <!-- 순회 중인 post와 연결된 모든 comment Queryset -->
-<!--                <div>{{ post.comment_set.all }}</div>-->
-                <ul>
-                    {% for comment in post.comment_set.all %}
-                        <li>{{ comment.content }}</li>
-                    {% empty %} <!-- post.comment_set.all에 순회할 항목이 없는 경우 -->
-                        <li>아직 댓글이 없습니다.</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
+    <div id="navbar">
+        <span>pylog</span>
+    </div>
+    <div id="post-list">
+        <ul class="posts">
+            <!-- for-in 태그로 순회하며 각각의 글은 li 요소로 표시 -->
+            {% for post in posts %}
+                <li class="post">
+                    <div>
+                        <a href="/posts/{{ post.id }}/">{{ post.title }}</a>
+                    </div>
+                    <!-- 각각의 글의 제목과 내용을 나누어 표시 -->
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.content }}</p>
+                    <ul class="comments">
+                        {% for comment in post.comment_set.all %}
+                            <li class="comment">{{ comment.content }}</li>
+                        {% empty %} <!-- post.comment_set.all에 순회할 항목이 없는 경우 -->
+                            <li class="comment-empty">아직 댓글이 없습니다.</li>
+                        {% endfor %}
+                    </ul>
+                    {% if post.thumbnail %}
+                        <img src="{{ post.thumbnail.url }}" alt="">
+                    {% else %}
+                        <img src="" alt="">
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
