@@ -1,10 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>pylog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
-    <h1>pylog</h1>
+    <div id="index">
+        <h1><a href="/posts/">pylog</a></h1>
+        <small>Life is short, You need Python.</small>
+    </div>
 </body>
 </html>
