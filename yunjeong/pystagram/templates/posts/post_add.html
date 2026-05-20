@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav>
+    <h1>
+        <a href="/posts/feeds/">Pystagram</a>
+    </h1>
+    <a href="/users/logout/">Logout</a>
+</nav>
+<div id="post-add">
+    <h1>Post 작성</h1>
+    <!--file을 전송할 것이므로 enctype을 multipart/form-data로 설정해야 한다.-->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <!-- label의 for 속성에는 가리키는 input의 id값을 입력 -->
+            <label for="id_images">이미지</label>
+            <input id="id_images" name="images" type="file" multiple>
+        </div>
+        {{ form.as_p }}
+        <div>
+            <label for="id_tags">해시태그</label>
+            <input id="id_tags" name="tags" type="text" placeholder="쉼표(,)로 구분하여 여러 태그 입력">
+        </div>
+        <button type="submit"> 게시 </button>
+    </form>
+</div>
+{% endblock %}
