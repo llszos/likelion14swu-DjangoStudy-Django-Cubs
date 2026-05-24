@@ -1,7 +1,10 @@
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from users.forms import LoginForm, SignupForm
 from users.models import User
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -47,3 +50,48 @@ def signup(request):
 
     context = {"form": form}
     return render(request, "users/signup.html", context)
+
+
+def profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    context = {
+        "user": user,
+    }
+    return render(request, "users/profile.html", context)
+    # user를 조회해 context로 전달
+
+
+def followers(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    relationships = user.follower_relationships.all()  # 나를 팔로우하는 관계
+    context = {
+        "user": user,
+        "relationships": relationships,
+    }
+    return render(request, "users/followers.html", context)
+
+def following(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    relationships = user.following_relationships.all()  # 내가 팔로우하는 관계
+    context = {
+        "user": user,
+        "relationships": relationships,
+    }
+    return render(request, "users/following.html", context)
+
+
+def follow(request, user_id):
+    user = request.user                                 # 로그인한 유저
+    target_user = get_object_or_404(User, id=user_id)  # 팔로우하려는 유저
+
+    # 이미 팔로우 중이라면 → 팔로잉 목록에서 제거
+    if target_user in user.following.all():
+        user.following.remove(target_user)
+
+    # 팔로우하지 않은 상태라면 → 팔로잉 목록에 추가
+    else:
+        user.following.add(target_user)
+
+    # next 값이 있으면 해당 위치로, 없으면 로그인한 유저의 프로필 페이지로 이동
+    url_next = request.GET.get("next") or reverse("users:profile", args=[user.id])
+    return HttpResponseRedirect(url_next)

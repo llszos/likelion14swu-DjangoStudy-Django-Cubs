@@ -34,7 +34,14 @@ def comment_add(request):
         print(comment.content)
         print(comment.user)
 
-        url = reverse("posts:feeds") + f"#post-{comment.post.id}"
+        # "next" 값이 있으면, 댓글 작성 완료 후 전달받은 값으로 이동
+        if request.GET.get("next"):
+            url = request.GET.get("next")
+
+        # "next" 값이 없으면, 피드 페이지의 해당 글 위치로 이동
+        else:
+            url = reverse("posts:feeds") + f"#post-{comment.post.id}"
+
         return HttpResponseRedirect(url)
 
 def comment_delete(request, comment_id):
@@ -104,3 +111,29 @@ def tags(request, tag_name):
         "posts": posts,
     }
     return render(request, 'posts/tags.html', context)
+
+def post_detail(request, post_id):
+    post = Post.objects.get(id=post_id)
+    comment_form = CommentForm()
+    context = {
+        "post": post,
+        "comment_form": comment_form,
+    }
+    return render(request, "posts/post_detail.html", context)
+
+
+def post_like(request, post_id):
+    post = Post.objects.get(id=post_id)
+    user = request.user
+
+    # 이미 좋아요를 누른 상태라면 → 좋아요 목록에서 삭제
+    if user.like_posts.filter(id=post.id).exists():
+        user.like_posts.remove(post)
+        
+    # 좋아요를 누르지 않은 상태라면 → 좋아요 목록에 추가
+    else:
+        user.like_posts.add(post)
+
+    # next 값이 있으면 해당 위치로, 없으면 피드의 해당 글 위치로 이동
+    url_next = request.GET.get("next") or reverse("posts:feeds") + f"#post-{post.id}"
+    return HttpResponseRedirect(url_next)

@@ -4,14 +4,26 @@ from posts.models import Post, PostImage, Comment, HashTag
 from django.db.models import ManyToManyField
 from django.forms import CheckboxSelectMultiple
 
+
 class CommentInLine(admin.TabularInline):
     model = Comment
     extra = 1
+
 
 @admin_thumbnails.thumbnail("photo")
 class PostImageInline(admin.StackedInline):
     model = PostImage
     extra = 1
+
+
+class LikeUserInline(admin.TabularInline):
+    model = Post.like_users.through
+    verbose_name = "좋아요 한 User"
+    verbose_name_plural = f"{verbose_name} 목록"
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Post)
@@ -23,6 +35,7 @@ class PostAdmin(admin.ModelAdmin):
     inlines = [
         CommentInLine,
         PostImageInline,
+        LikeUserInline,     # 추가
     ]
     formfield_overrides = {
         ManyToManyField: {"widget": CheckboxSelectMultiple},
