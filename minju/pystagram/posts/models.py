@@ -11,7 +11,10 @@ class Post(models.Model):
     )
     content = models.TextField("내용")
     created = models.DateTimeField("생성일시", auto_now_add=True)
+    tags = models.ManyToManyField("posts.HashTag", verbose_name='해시태그 목록', blank=True)
 
+    def __str__(self):
+        return f"{self.user.username}의 Post(id: {self.id})"
 
 # 게시글 사진
 class PostImage(models.Model):
@@ -42,3 +45,9 @@ class Comment(models.Model):
     )
     content = models.TextField("내용")
     created = models.DateTimeField("생성일시", auto_now_add=True)
+
+class HashTag(models.Model):
+    name = models.CharField("태그명", max_length=50)
+
+    def __str__(self):
+        return self.name

@@ -41,7 +41,7 @@ class SignupForm(forms.Form):
         password1 = self.cleaned_data["password1"]
         profile_image = self.cleaned_data["profile_image"]
         short_description = self.cleaned_data["short_description"]
-        user = User.objects.crㄸeate_user(
+        user = User.objects.create_user(
             username=username,
             password=password1,
             profile_image=profile_image,
