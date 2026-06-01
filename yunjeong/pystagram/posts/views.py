@@ -35,14 +35,15 @@ def comment_add(request):
         # DB에 Comment 객체 저장
         comment.save()
 
-        # 생성된 Comment의 정보 확인
-        print(comment.id)
-        print(comment.content)
-        print(comment.user)
-        # HttpResponseRedirect는 URL parttern name을 사용할 수 없다
-        # 이 경우, reverse()로 URL을 만든 후, 뒤에 추가로 붙일 주소를 직접 입력해야 한다.
-        url = reverse("posts:feeds") + f"#post-{comment.id}"
-        return HttpResponseRedirect(url)
+        # URL로 "next" 값을 전달받았다면, 댓글 작성 완료 후 전달받은 값으로 이동한다
+        if request.GET.get("next"):
+            url_next = request.GET.get("next")
+
+        # "next" 값을 전달받지 않았다면, 피드 페이지의 글 위치로 이동한다
+        else:
+            url_next = reverse("posts:feeds") + f"#post-{comment.id}"
+
+        return HttpResponseRedirect(url_next)
 
 @require_POST
 def comment_delete(request, comment_id):
@@ -110,3 +111,29 @@ def tags(request, tag_name):
         "posts":posts,
     }
     return render(request, 'posts/tags.html', context)
+
+def post_detail(request, post_id):
+    post = Post.objects.get(id=post_id)
+    comment_form = CommentForm()
+    context = {
+        "post": post,
+        "comment_form": comment_form,
+    }
+    return render(request, 'posts/post_detail.html', context)
+
+# URL에서 좋아요 처리할 Post의 id를 전달받는다.
+def post_like(request, post_id):
+    post = Post.objects.get(id=post_id)
+    user = request.user
+
+    # 사용자가 "좋아요를 누른 Post 목록"에 "좋아요 버튼을 누른 Post"가 존재한다면
+    if user.like_posts.filter(id=post.id).exists():
+        # 좋아요 목록에서 삭제한다
+        user.like_posts.remove(post)
+    # 존재하지 않는다면 좋아요 목록에 추가한다
+    else:
+        user.like_posts.add(post)
+
+    # next로 값이 전달되었다면 해당 위치로, 전달되지 않았다면 피드 페이지에서 해당 Post 위치로 이동한다
+    url_next = request.GET.get("next") or reverse("posts:feeds") + f"#post-{post.id}"
+    return HttpResponseRedirect(url_next)
