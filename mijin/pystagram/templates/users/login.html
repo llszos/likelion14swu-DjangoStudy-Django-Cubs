@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <div id="login">
+        <form method="POST">
+            <h1>Pystagram</h1>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-login">로그인</button>
+            <a href="{% url 'users:login' %}">회원가입 페이지로 이동</a>
+        </form>
+    </div>
+    {% endblock %}
+</body>
+</html>
